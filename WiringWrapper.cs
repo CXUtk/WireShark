@@ -336,7 +336,6 @@ namespace WireShark {
                 return;
             }
             TripWire(l, t, w, h);
-            PixelBoxPass();
         }
 
         // Token: 0x0600075F RID: 1887 RVA: 0x00355E08 File Offset: 0x00354008
@@ -450,6 +449,7 @@ namespace WireShark {
                     Teleport();
                 }
             }
+            PixelBoxPass();
             LogicGatePass();
         }
 
