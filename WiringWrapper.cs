@@ -331,11 +331,21 @@ namespace WireShark {
             }
         }
 
+        public static void TripWireWithLogic(int l, int t, int w, int h) {
+            if (Main.netMode == NetmodeID.MultiplayerClient) {
+                return;
+            }
+            TripWire(l, t, w, h);
+            LogicGatePass();
+        }
+
         public static void BigTripWire(int l, int t, int w, int h) {
             if (Main.netMode == NetmodeID.MultiplayerClient) {
                 return;
             }
             TripWire(l, t, w, h);
+            PixelBoxPass();
+            LogicGatePass();
         }
 
         // Token: 0x0600075F RID: 1887 RVA: 0x00355E08 File Offset: 0x00354008
@@ -449,8 +459,7 @@ namespace WireShark {
                     Teleport();
                 }
             }
-            PixelBoxPass();
-            LogicGatePass();
+
         }
 
         // Token: 0x06000760 RID: 1888 RVA: 0x00356308 File Offset: 0x00354508
@@ -489,10 +498,11 @@ namespace WireShark {
                                 _GatesCurrent.Dequeue();
                             } else {
                                 _GatesDone.Add(key, true);
-                                TripWire((int)key.X, (int)key.Y, 1, 1);
+                                TripWireWithLogic((int)key.X, (int)key.Y, 1, 1);
                                 _GatesCurrent.Dequeue();
                             }
                         }
+                        PixelBoxPass();
                     }
                 }
                 _GatesDone.Clear();

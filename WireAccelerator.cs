@@ -103,13 +103,15 @@ namespace WireShark {
                 for (int j = 0; j < Main.maxTilesY; j++) {
                     if (Main.tile[i, j] != null) {
                         int wireid = GetWireID(i, j);
-                        if (wireid != 0) {
-                            for (int k = 0; k < 4; k++) {
-                                if (((wireid >> k) & 1) == 0 || _vis[i, j, k, 0] != -1) continue;
-                                var info = BFSWires(_connectionInfos.Count, k, i, j);
-                                _connectionInfos.Add(info);
-                            }
+                        if (wireid == 0 || Main.tile[i, j].type == TileID.WirePipe ||
+                                    Main.tile[i, j].type == TileID.PixelBox) continue;
+
+                        for (int k = 0; k < 4; k++) {
+                            if (((wireid >> k) & 1) == 0 || _vis[i, j, k, 0] != -1) continue;
+                            var info = BFSWires(_connectionInfos.Count, k, i, j);
+                            _connectionInfos.Add(info);
                         }
+
                     }
                 }
             }
