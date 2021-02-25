@@ -16,9 +16,9 @@ namespace WireShark {
 
         public override void PostUpdate() {
             base.PostUpdate();
-            if (Main.mouseLeft && Main.mouseLeftRelease) {
-                Main.NewText(Main.MouseWorld.ToTileCoordinates16(), Microsoft.Xna.Framework.Color.Red);
-            }
+            //if (Main.mouseLeft && Main.mouseLeftRelease) {
+            //    Main.NewText(Main.MouseWorld.ToTileCoordinates16(), Microsoft.Xna.Framework.Color.Red);
+            //}
         }
     }
 }

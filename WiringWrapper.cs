@@ -455,7 +455,6 @@ namespace WireShark {
 
         // Token: 0x06000760 RID: 1888 RVA: 0x00356308 File Offset: 0x00354508
         private static void PixelBoxPass() {
-            Main.NewText(">>");
             foreach (KeyValuePair<Point16, byte> current in _wireAccelerator._pixelBoxTriggers) {
                 if (current.Value != 2) {
                     if (current.Value == 1) {

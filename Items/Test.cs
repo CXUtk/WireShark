@@ -28,7 +28,7 @@ namespace WireShark.Items {
             if (player.itemAnimation == player.itemAnimationMax - 2) {
                 Point p = Main.MouseWorld.ToTileCoordinates();
                 WiringWarpper.GetWireAccelerator().ActiviateAll(p.X, p.Y, new System.Collections.Generic.HashSet<int>());
-                Main.NewText("Activate");
+                // Main.NewText("Activate");
             }
             return base.UseItem(player);
         }

@@ -60,17 +60,7 @@ namespace WireShark {
         }
 
         public void ActiviateAll(int x, int y, HashSet<int> visited) {
-            int wireid = GetWireID(x, y);
-            if (wireid == 0) return;
-            for (int k = 0; k < 4; k++) {
-                if (((wireid >> k) & 1) == 0) continue;
-                int id = _vis[x, y, k, 0];
-                if (id == -1 || visited.Contains(id)) continue;
-                foreach (var tile in _connectionInfos[id].OutputTiles) {
-                    WiringWarpper.HitWireSingle(tile.X, tile.Y);
-                }
-                visited.Add(id);
-            }
+            WiringWarpper.BigTripWire(x, y, 1, 1);
         }
 
         public void Activiate(int x, int y, int wire, HashSet<int> visited) {
@@ -90,7 +80,7 @@ namespace WireShark {
                 } else {
                     _pixelBoxTriggers.Add(pBox.Key, pBox.Value);
                 }
-                Main.NewText($"{_pixelBoxTriggers[pBox.Key]}");
+                // Main.NewText($"{_pixelBoxTriggers[pBox.Key]}");
             }
             visited.Add(id);
         }
