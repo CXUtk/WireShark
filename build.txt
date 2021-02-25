@@ -1,0 +1,3 @@
+displayName = 电路加速器
+author = DXTsT
+version = 0.1
