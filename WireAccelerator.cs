@@ -12,7 +12,7 @@ namespace WireShark {
     public class WireAccelerator {
 
         private static readonly HashSet<int> _sourceTable = new HashSet<int>() {
-            135, 314, 423, 428, 442, 440, 136, 144, 441, 468, 132, 411,
+            135, 314, 428, 442, 440, 136, 144, 441, 468, 132, 411, TileID.LogicGate, TileID.LogicSensor
         };
 
         private struct Node {
@@ -35,18 +35,18 @@ namespace WireShark {
         };
 
         private struct ConnectionInfo {
-            public List<TileInfo> InputTiles;
             public List<TileInfo> OutputTiles;
             public Dictionary<Point16, byte> PixelBoxTriggers;
         };
 
+
         private int[,,,] _vis;
-        private Dictionary<Point, int> _toProcess = new Dictionary<Point, int>();
         public Dictionary<Point16, byte> _pixelBoxTriggers = new Dictionary<Point16, byte>();
         // D, U, R, L
         private static readonly int[] dx = { 0, 0, 1, -1 };
         private static readonly int[] dy = { 1, -1, 0, 0 };
         private List<ConnectionInfo> _connectionInfos;
+        private Dictionary<KeyValuePair<Point16, byte>, int> _inputConnectedCompoents = new Dictionary<KeyValuePair<Point16, byte>, int>();
 
         private int GetWireID(int X, int Y) {
             Tile tile = Main.tile[X, Y];
@@ -67,7 +67,11 @@ namespace WireShark {
             int wireid = GetWireID(x, y);
             if (wireid == 0) return;
             if (((wireid >> wire) & 1) == 0) return;
-            int id = _vis[x, y, wire, 0];
+            int id = -1;
+            var item = new KeyValuePair<Point16, byte>(new Point16(x, y), (byte)wire);
+            if (_inputConnectedCompoents.ContainsKey(item)) {
+                id = _inputConnectedCompoents[item];
+            }
             if (id == -1 || visited.Contains(id)) return;
             foreach (var tile in _connectionInfos[id].OutputTiles) {
                 WiringWarpper.HitWireSingle(tile.X, tile.Y);
@@ -87,6 +91,7 @@ namespace WireShark {
 
 
         public void Preprocess() {
+            _inputConnectedCompoents = new Dictionary<KeyValuePair<Point16, byte>, int>();
             _connectionInfos = new List<ConnectionInfo>();
             _vis = new int[Main.maxTilesX, Main.maxTilesY, 4, 3];
             _pixelBoxTriggers = new Dictionary<Point16, byte>();
@@ -115,6 +120,7 @@ namespace WireShark {
                     }
                 }
             }
+            _vis = null;
         }
 
 
@@ -247,7 +253,6 @@ namespace WireShark {
             Queue<Node> Q = new Queue<Node>();
             Q.Enqueue(new Node(x, y, 0));
 
-            List<TileInfo> inputs = new List<TileInfo>();
             List<TileInfo> outputs = new List<TileInfo>();
             Dictionary<Point16, byte> pixels = new Dictionary<Point16, byte>();
             while (Q.Count > 0) {
@@ -273,7 +278,7 @@ namespace WireShark {
 
                 if (curTile.active() && curTile.type != 0) {
                     if (_sourceTable.Contains(curTile.type)) {
-                        inputs.Add(new TileInfo(node.X, node.Y, curTile.type));
+                        _inputConnectedCompoents.Add(new KeyValuePair<Point16, byte>(new Point16(node.X, node.Y), (byte)wireid), id);
                     } else if (IsAppliance(node.X, node.Y)) {
                         outputs.Add(new TileInfo(node.X, node.Y, curTile.type));
                     }
@@ -306,7 +311,6 @@ namespace WireShark {
                 }
             }
             return new ConnectionInfo {
-                InputTiles = inputs,
                 OutputTiles = outputs,
                 PixelBoxTriggers = pixels,
             };
