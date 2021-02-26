@@ -121,6 +121,7 @@ namespace WireShark {
                 }
             }
             _vis = null;
+            GC.Collect();
         }
 
 
