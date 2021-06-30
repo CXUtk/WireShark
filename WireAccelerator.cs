@@ -6,7 +6,10 @@ using System.Text;
 using System.Threading.Tasks;
 using Terraria;
 using Terraria.DataStructures;
+using Terraria.GameContent.Events;
 using Terraria.ID;
+using Terraria.ModLoader;
+using static WireShark.WiringWarpper;
 
 namespace WireShark {
     public class WireAccelerator {
@@ -25,18 +28,9 @@ namespace WireShark {
             }
         };
 
-        private struct TileInfo {
-            public int X, Y, ID;
-            public TileInfo(int x, int y, int id) {
-                X = x;
-                Y = y;
-                ID = id;
-            }
-        };
-
         private struct ConnectionInfo {
-            public List<TileInfo> OutputTiles;
-            public Dictionary<Point16, byte> PixelBoxTriggers;
+            public TileInfo[] OutputTiles;
+            public KeyValuePair<Point16, byte>[] PixelBoxTriggers;
         };
 
 
@@ -46,7 +40,7 @@ namespace WireShark {
         private static readonly int[] dx = { 0, 0, 1, -1 };
         private static readonly int[] dy = { 1, -1, 0, 0 };
         private List<ConnectionInfo> _connectionInfos;
-        private Dictionary<KeyValuePair<Point16, byte>, int> _inputConnectedCompoents = new Dictionary<KeyValuePair<Point16, byte>, int>();
+        private int[,,] _inputConnectedCompoents;
 
         private int GetWireID(int X, int Y) {
             Tile tile = Main.tile[X, Y];
@@ -62,21 +56,26 @@ namespace WireShark {
         public void ActiviateAll(int x, int y, HashSet<int> visited) {
             WiringWarpper.BigTripWire(x, y, 1, 1);
         }
+        private int[] visited;
+        private int now_number;
 
-        public void Activiate(int x, int y, int wire, HashSet<int> visited) {
+        public void ResetVisited()
+        {
+            ++now_number;
+        }
+
+        public void Activiate(int x, int y, int wire) {
             int wireid = GetWireID(x, y);
             if (wireid == 0) return;
             if (((wireid >> wire) & 1) == 0) return;
-            int id = -1;
-            var item = new KeyValuePair<Point16, byte>(new Point16(x, y), (byte)wire);
-            if (_inputConnectedCompoents.ContainsKey(item)) {
-                id = _inputConnectedCompoents[item];
+            int id = _inputConnectedCompoents[x, y, wire];
+            if (id == -1 ||/* visited.Contains(id)*/ visited[id] == now_number) return;
+            var info = _connectionInfos[id];
+
+            foreach (var tile in info.OutputTiles) {
+                tile.HitWire();
             }
-            if (id == -1 || visited.Contains(id)) return;
-            foreach (var tile in _connectionInfos[id].OutputTiles) {
-                WiringWarpper.HitWireSingle(tile.X, tile.Y);
-            }
-            foreach (var pBox in _connectionInfos[id].PixelBoxTriggers) {
+            foreach (var pBox in info.PixelBoxTriggers) {
                 if (_pixelBoxTriggers.ContainsKey(pBox.Key)) {
                     byte v = _pixelBoxTriggers[pBox.Key];
                     v |= pBox.Value;
@@ -86,12 +85,13 @@ namespace WireShark {
                 }
                 // Main.NewText($"{_pixelBoxTriggers[pBox.Key]}");
             }
-            visited.Add(id);
+            visited[id] = now_number;
         }
 
 
         public void Preprocess() {
-            _inputConnectedCompoents = new Dictionary<KeyValuePair<Point16, byte>, int>();
+            _inputConnectedCompoents = new int[Main.maxTilesX, Main.maxTilesY, 4];
+
             _connectionInfos = new List<ConnectionInfo>();
             _vis = new int[Main.maxTilesX, Main.maxTilesY, 4, 3];
             _pixelBoxTriggers = new Dictionary<Point16, byte>();
@@ -101,6 +101,9 @@ namespace WireShark {
                         _vis[i, j, k, 0] = -1;
                         _vis[i, j, k, 1] = -1;
                         _vis[i, j, k, 2] = -1;
+                        _inputConnectedCompoents[i, j, k] = -1;
+                        _inputConnectedCompoents[i, j, k] = -1;
+                        _inputConnectedCompoents[i, j, k] = -1;
                     }
                 }
             }
@@ -121,6 +124,8 @@ namespace WireShark {
                 }
             }
             _vis = null;
+            visited = new int[_connectionInfos.Count];
+            now_number = 1;
             GC.Collect();
         }
 
@@ -173,33 +178,23 @@ namespace WireShark {
                                             if (type == 594) return true;
                                             if (type == 34) return true;
                                             if (type == 314) return true;
-                                            else {
-                                                if (type == 33 || type == 174 || type == 49 || type == 372) return true;
-                                                if (type == 92) return true;
-                                                if (type == 137) return true;
-                                                else {
-                                                    if (type == 443) return true;
-                                                    if (type == 531) return true;
-                                                    else {
-                                                        if (type == 139 || type == 35) return true;
-                                                        if (type == 207) return true;
-                                                        if (type == 410 || type == 480 || type == 509) return true;
-                                                        if (type == 455) return true;
-                                                        if (type == 141) return true;
-                                                        if (type == 210) return true;
-                                                        if (type == 142 || type == 143) return true;
-                                                        else if (type == 105) return true;
-                                                        else {
-                                                            if (type == 349) return true;
-                                                            if (type == 506) return true;
-                                                            else {
-                                                                if (type == 546) return true;
-                                                                if (type == 557) return true;
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                            }
+                                            if (type == 33 || type == 174 || type == 49 || type == 372) return true;
+                                            if (type == 92) return true;
+                                            if (type == 137) return true;
+                                            if (type == 443) return true;
+                                            if (type == 531) return true;
+                                            if (type == 139 || type == 35) return true;
+                                            if (type == 207) return true;
+                                            if (type == 410 || type == 480 || type == 509) return true;
+                                            if (type == 455) return true;
+                                            if (type == 141) return true;
+                                            if (type == 210) return true;
+                                            if (type == 142 || type == 143) return true;
+                                            if (type == 105) return true;
+                                            if (type == 349) return true;
+                                            if (type == 506) return true;
+                                            if (type == 546) return true;
+                                            if (type == 557) return true;
                                         }
                                     }
                                 }
@@ -279,9 +274,9 @@ namespace WireShark {
 
                 if (curTile.active() && curTile.type != 0) {
                     if (_sourceTable.Contains(curTile.type)) {
-                        _inputConnectedCompoents.Add(new KeyValuePair<Point16, byte>(new Point16(node.X, node.Y), (byte)wireid), id);
+                        _inputConnectedCompoents[node.X, node.Y, wireid] = id;
                     } else if (IsAppliance(node.X, node.Y)) {
-                        outputs.Add(new TileInfo(node.X, node.Y, curTile.type));
+                        outputs.Add(TileInfo.CreateTileInfo(node.X, node.Y));
                     }
                 }
 
@@ -312,8 +307,8 @@ namespace WireShark {
                 }
             }
             return new ConnectionInfo {
-                OutputTiles = outputs,
-                PixelBoxTriggers = pixels,
+                OutputTiles = outputs.ToArray(),
+                PixelBoxTriggers = pixels.ToArray()
             };
         }
 

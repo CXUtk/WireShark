@@ -2,13 +2,6 @@
 
 namespace WireShark {
     public class WireShark : Mod {
-        public WireShark() {
-        }
-        public override void PostSetupContent() {
-            base.PostSetupContent();
-
-        }
-
         public override void Load() {
             WiringWarpper.Initialize();
             On.Terraria.Wiring.Actuate += Wiring_Actuate;
@@ -17,9 +10,6 @@ namespace WireShark {
             On.Terraria.Wiring.DeActive += Wiring_DeActive;
             On.Terraria.Wiring.HitSwitch += Wiring_HitSwitch;
             On.Terraria.Wiring.Initialize += Wiring_Initialize;
-            On.Terraria.Wiring.MassWireOperation += Wiring_MassWireOperation;
-            On.Terraria.Wiring.MassWireOperationInner += Wiring_MassWireOperationInner;
-            On.Terraria.Wiring.MassWireOperationStep += Wiring_MassWireOperationStep;
             On.Terraria.Wiring.PokeLogicGate += Wiring_PokeLogicGate;
             On.Terraria.Wiring.ReActive += Wiring_ReActive;
             On.Terraria.Wiring.SetCurrentUser += Wiring_SetCurrentUser;
@@ -40,11 +30,11 @@ namespace WireShark {
         }
 
         private void Wiring_SkipWire_Point16(On.Terraria.Wiring.orig_SkipWire_Point16 orig, Terraria.DataStructures.Point16 point) {
-            WiringWarpper.SkipWire(point);
+            
         }
 
         private void Wiring_SkipWire_int_int(On.Terraria.Wiring.orig_SkipWire_int_int orig, int x, int y) {
-            WiringWarpper.SkipWire(x, y);
+            
         }
 
         private void Wiring_SetCurrentUser(On.Terraria.Wiring.orig_SetCurrentUser orig, int plr) {
@@ -58,19 +48,7 @@ namespace WireShark {
         private void Wiring_PokeLogicGate(On.Terraria.Wiring.orig_PokeLogicGate orig, int lampX, int lampY) {
             WiringWarpper.PokeLogicGate(lampX, lampY);
         }
-
-        private bool? Wiring_MassWireOperationStep(On.Terraria.Wiring.orig_MassWireOperationStep orig, Microsoft.Xna.Framework.Point pt, Terraria.GameContent.UI.WiresUI.Settings.MultiToolMode mode, ref int wiresLeftToConsume, ref int actuatorsLeftToConstume) {
-            return WiringWarpper.MassWireOperationStep(pt, mode, ref wiresLeftToConsume, ref actuatorsLeftToConstume);
-        }
-
-        private void Wiring_MassWireOperationInner(On.Terraria.Wiring.orig_MassWireOperationInner orig, Microsoft.Xna.Framework.Point ps, Microsoft.Xna.Framework.Point pe, Microsoft.Xna.Framework.Vector2 dropPoint, bool dir, ref int wireCount, ref int actuatorCount) {
-            WiringWarpper.MassWireOperationInner(ps, pe, dropPoint, dir, ref wireCount, ref actuatorCount);
-        }
-
-        private void Wiring_MassWireOperation(On.Terraria.Wiring.orig_MassWireOperation orig, Microsoft.Xna.Framework.Point ps, Microsoft.Xna.Framework.Point pe, Terraria.Player master) {
-            WiringWarpper.MassWireOperation(ps, pe, master);
-        }
-
+        
         private void Wiring_Initialize(On.Terraria.Wiring.orig_Initialize orig) {
             WiringWarpper.Initialize();
         }
@@ -109,9 +87,6 @@ namespace WireShark {
             On.Terraria.Wiring.DeActive -= Wiring_DeActive;
             On.Terraria.Wiring.HitSwitch -= Wiring_HitSwitch;
             On.Terraria.Wiring.Initialize -= Wiring_Initialize;
-            On.Terraria.Wiring.MassWireOperation -= Wiring_MassWireOperation;
-            On.Terraria.Wiring.MassWireOperationInner -= Wiring_MassWireOperationInner;
-            On.Terraria.Wiring.MassWireOperationStep -= Wiring_MassWireOperationStep;
             On.Terraria.Wiring.PokeLogicGate -= Wiring_PokeLogicGate;
             On.Terraria.Wiring.ReActive -= Wiring_ReActive;
             On.Terraria.Wiring.SetCurrentUser -= Wiring_SetCurrentUser;
