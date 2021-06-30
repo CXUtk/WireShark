@@ -12,6 +12,8 @@ namespace WireShark {
 
         public override void OnEnterWorld(Player player) {
             WiringWarpper.GetWireAccelerator().Preprocess();
+            WiringWarpper.Initialize_GatesDone();
+            WiringWarpper.Initialize_LogicLamps();
         }
 
         public override void PostUpdate() {
