@@ -1094,7 +1094,7 @@ namespace WireShark
             }
             bool flag = Main.tileSolid[Main.tile[i, j].type] && !TileID.Sets.NotReallySolid[Main.tile[i, j].type];
             ushort type = Main.tile[i, j].type;
-            if (type == 314 || type - 386 <= 3)
+            if (type == 314 || (uint)(type - 386) <= 3u)
             {
                 flag = false;
             }

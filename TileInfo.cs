@@ -17,11 +17,18 @@ namespace WireShark
 {
     public abstract class TileInfo
     {
-        protected int i, j, type;
+        protected int i, j;
+
+        public ushort type 
+        { 
+            get => tile.type; 
+            set => tile.type = value; 
+        }
 
         protected Tile tile;
 
         private static Dictionary<int, Type> tileinfo = new Dictionary<int, Type>();
+
 
         static TileInfo()
         {
